@@ -1,0 +1,13 @@
+1.History ：		浏览历史
+2.Bookmarks：		书签
+3.Downloads：		下载管理
+4.Auto fill: 		自动填充，像信用卡，邮箱等
+5.Favivon:		favorites icon,书签前的图标
+5.Password manager:	浏览器的记住密码 
+6.Omnibox: 		全能搜索框，比如谷歌浏览器输入1+2后提示3
+7.Tab:			标签，都是底层创建
+8.Preference:		设置
+9.TabMode：		管理所有的tab,无痕浏览为ChromeTabCreator
+10.Content:		有点像webview,通过NavigationController调用
+11.OfflinePages:	离线网页
+12.WebContents:		网页内容，含有NavigationController，通过WebContentsFactory创建	
