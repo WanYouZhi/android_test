@@ -1,0 +1,28 @@
+ netstat -aon|findstr "5037"
+Error:Could not HEAD 'http://jcenter.bintray.com/com/squareup/leakcanary/leakcanary-android/1.5.1/leakcanary-android-1.5.1.aar'. Received status code 407 from server: authenticationrequired
+<a href="toggle.offline.mode">Enable Gradle 'offline mode' and sync project</a>
+看一个类呢，首先要看它的继承关系。大家说是不是。不是，我们要先看他的注释。因为注释的才是目的，而从代码只能来反映目的。ok,很好注释很简单就一句话：An activity that talks with application and activity level delegates for async initialization.意思是：这个activity完成与application和acitivity层级的异步初始化委托。可以看到它的目的是异步初始化，而初始化分两种，一种应用级别的初始化，一种activity级别的初始化。
+```
+public abstract class AsyncInitializationActivity extends AppCompatActivity implements
+        ChromeActivityNativeDelegate, BrowserParts {
+```
+可以看到除了继承了我们都知道的AppCompatActivity（不知道的自己百度），还实现了另外两个接口：
+ChromeActivityNativeDelegate，BrowserParts；同样看两个的注释, 我们先看application级别的初始化。但那个是呢，听名字大概率是这个BrowserParts，为啥呢，因为这个app不就是浏览器吗。但这只是个接口，他的实现呢是谁：不废话吗，上面不才说了AsyncInitializationActivity。我会说废话吗，其实还有个EmptyBrowserParts，但只是提一下。
+接口既然说过实现了，还差什么，当然是调用了。ok谁调用的呢，随便在AsyncInitializationActivity找一个方法就发现了ChromeBrowserInitializer，而且只用它调用，而且是单例。为啥呢，因为应用初始化只用一次吗，当然是单例了。既然是异步初始化，那肯定是我先调你，等你好了再调我。当然我不会把整个activity传给你，让你随便搞。于是我定义了一些方法。这些方法组成的BrowserParts 接口就是我的委托了。
+ok,ChromeBrowserInitializer只调了两次：handlePreNativeStartup，handlePostNativeStartup。前一个是在oncreate中调的。后一个是在ChromeActivityNativeDelegate的onCreateWithNative中回调的。当然还有同步时只需一个的handleSynchronousStartup。
+我们先来看下handlePreNativeStartup；可以看到调用了activity（BrowserParts 只是委托）的preInflationStartup，setContentViewAndLoadLibrary，postInflationStartup；handlePostNativeStartup生成一个队列，也就是依次调用：maybePreconnect,initializeCompositor,initializeState,finishNativeInitialization。而异步时真正开始是C++完成时的回调mHandler.post(initQueue.pop()）.
+下面开始ChromeActivityNativeDelegate，同样我们只看调用，发现也只有一个调用NativeInitializationController，下面我们又看到每个AsyncInitializationActivity都会有这个Controller
+
+```
+    private final NativeInitializationController mNativeInitializationController =
+            new NativeInitializationController(this);
+```
+这个调用挺多，但onStart、onResume、onPause、onStop、onNewIntent、onActivityResult都是直接调用。还有3个：1.setContentViewAndLoadLibrary和startDelayedNativeInitialization：startBackgroundTasks。2.finishNativeInitialization：onNativeInitializationComplete 3.postInflationStartup：firstDrawComplete。
+
+生命周期：onCreate:preInflationStartup，setContentViewAndLoadLibrary->startBackgroundTasks->onCreateWithNative，
+		postInflationStartup->onFirstDrawComplete->onCreateWithNative
+		onCreateWithNative:maybePreconnect,initializeCompositor,initializeState,finishNativeInitialization->onNativeInitializationComplete
+	onstart:
+	onResume:
+	onStop:
+可以看到，这两个委托就是为了在activity的onstart之前把所有native加载好。也就是说我们其他像onStartWithNative等像onStart一样用就行了。

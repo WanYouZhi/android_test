@@ -1,0 +1,4 @@
+initializeCompositor:
+finishNativeInitialization:
+initializeState:
+onAccessibilityModeChanged
