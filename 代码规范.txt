@@ -11,4 +11,18 @@
 
 每个需求有个ar,产品、ui、se、分离
 每个commit有个AR和问题单号
-gvbbh
+
+
+1.程序的目的是为了让电脑做自己想做的事，刚开始电脑只能处理一个事情。且是没有内存的，等到后来cpu比io操作越来越快内存便出现了。引入内存大幅增加了电脑的速度，现在的所有的操作都是再内存中的。像对象啦各种变量都是，当然你也遇到过直接关机后txt文档里的东西都没了。后来cpu比内存还要快，于是有了cpu缓存，现在到了三级缓存。但有个问题是缓存普遍的问题，于是java有了volatile关键字，强制从内存读取。
+2.其次为了充分利用电脑于是又了多道程序设计，也就是我们的进程。有了进程之后，我们就有了进程管理和内存管理了。也就是给进程分配cpu和内存。还有对设备和文件的加锁操作，是否都可以做成异步的呢。其实也不好，因为原来的进程切换更多的是拿不到锁。所以放弃cpu,如果异步就会导致一个进程一直可以走下去。或者用像linux的分时操作系统。进程调度与进程间通信：
+3.由于进程进程不免进行io操作，这时为了不把进程阻塞掉。我们有了线程，于是有了进程内的并发，真正的并行需要多核cpu与操作系统支持。线程切换Handler。线程安全AtomicInteger，底层是通过cpu的cas指令（compareAndSwap）
+4.随着各种操作系统的出现，在各个操作系统上想要运行同一段代码是不行的。于是java应运而生，由jvm实现一次编译处处运行。java除了提供这个，还提供了很多类，重要的如java的集合类（LinkedHashMap按访问顺序排序实现LRU）、线程池、三种String类、Object类方法。
+5.网络编程最主要是http协议，head和body，requeset和response.cookie和session。ssl安全连接及双向认证。
+6.安卓系统架构：linux/libraries and dalvik 、framework、apps
+7.安卓数据存储：shared preference 、内部存储、外部存储（包括通过usb装载的）、网络存储。content provider只是数据访问方式，主要为提供给第三方。
+8.安卓四大组件：Activity 、Broadcast、Service、Content Provider。intent-filter的解耦： 动作(Action),数据(Data),分类(Category),类型(Type),组件(Compent)以及扩展信(Extra)。 
+9.安卓布局：LinearLayout、RelativeLayout、ConstraintLayout。
+10.view自定义，1.view组合、view继承、view自绘。
+11.RecyclerView
+13.安卓view绘制，view是用户交互的基本单元：Window—DecorView为FrameLayout含有statusBarBackground和ViewRoot，ViewRoot含有title和id/content，给每个子view生成LayoutParams，然后onMeasure与onlayout都为DecorView管理。ViewRootImpl.performTraversals 
+14.事件分发：DOWN的onTouchEvent返回true,表示要处理这个手势。剩余event便不再给其他控件。dispatchTouchEvent、onTouchEvent、onInterceptTouchEvent为U型结构。对于 dispatchTouchEvent，onTouchEvent，return true是终结事件传递。return false 是回溯到父View的onTouchEvent方法。
